@@ -48,8 +48,9 @@ El portafolio cuenta con un sistema dinámico de traducción **ES/EN** gestionad
 ---
 
 ## ✉️ Contacto
-* **LinkedIn:** [Tu Perfil](http://www.linkedin.com/in/juan-esteban-parra-rodriguez-99956a3ab)
-* **Email:** [tu-correo@email.com](mailto:juanesspa76@gmail.com)
+* **LinkedIn:** [Juan Esteban Parra Rodriguez](http://www.linkedin.com/in/juan-esteban-parra-rodriguez-99956a3ab)
+* **Email:** [Juanesspa76@gmail.com](mailto:juanesspa76@gmail.com)
 
 ---
+Portfolio: https://stebancl.github.io/Portfolio/
 *Hecho con 🦝 y mucha lógica de Vibecoding.*
