@@ -1,309 +1,583 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio | StebanCL</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🦝</text></svg>">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Estilo de respaldo por si no tienes el CSS del WIP */
-        .project-img-container.bg-dark {
-            background-color: #0a0a0a !important;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid rgba(0, 255, 170, 0.1);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juan Esteban Parra · Portfolio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🦝</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-glass">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">STEBAN<span class="text-neon">_CL</span></a>
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-info rounded-pill" id="lang-toggler">🌐 ES / EN</button>
-                <button class="btn btn-sm btn-outline-primary rounded-pill" id="theme-toggler">🌙 Switch Theme</button>
-            </div>
+<!-- ================= GLOBAL CONTROLS (always visible) ================= -->
+<div class="global-bar">
+  <button id="color-toggle" class="pill-btn color-pill" aria-label="Cambiar color de acento">
+    <span id="color-dot" class="color-dot"></span>
+  </button>
+  <button id="theme-toggle" class="pill-btn" aria-label="Cambiar tema">🌙</button>
+  <button id="lang-toggle" class="pill-btn" aria-label="Change language">ES / EN</button>
+</div>
+
+<!-- ================= MUSIC PLAYER (vinyl slide panel) ================= -->
+<button id="music-tab" class="music-tab" aria-label="Abrir reproductor">
+  <span class="vinyl-mini"></span>
+</button>
+
+<aside id="music-panel" class="music-panel">
+  <button id="music-close" class="music-close" aria-label="Cerrar reproductor">✕</button>
+  <div class="vinyl-wrap">
+    <div class="vinyl" id="vinyl-disc">
+      <div class="vinyl-label"><span id="track-emoji">🦝</span></div>
+    </div>
+    <div class="tonearm" id="tonearm"></div>
+  </div>
+  <h4 id="track-title" class="track-title">—</h4>
+  <p class="track-sub" data-i18n="music_sub">Ambient del taller de código</p>
+
+  <div class="scrub-row">
+    <span id="time-current">0:00</span>
+    <input type="range" id="scrub" min="0" max="100" value="0" step="0.1">
+    <span id="time-total">0:00</span>
+  </div>
+
+  <div class="transport-row">
+    <button id="prev-track" class="transport-btn" aria-label="Anterior">⏮</button>
+    <button id="play-pause" class="transport-btn big" aria-label="Reproducir">▶</button>
+    <button id="next-track" class="transport-btn" aria-label="Siguiente">⏭</button>
+  </div>
+
+  <div class="volume-row">
+    <span>🔊</span>
+    <input type="range" id="volume" min="0" max="1" value="0.6" step="0.01">
+  </div>
+
+  <audio id="audio-el" preload="auto"></audio>
+</aside>
+
+<!-- ================= LANDING SCREEN ================= -->
+<section id="landing" class="landing">
+  <canvas id="falling-stars"></canvas>
+  <div class="stars"></div>
+  <div class="landing-inner">
+    <p class="eyebrow" data-i18n="land_eyebrow">Aprendiz ADSO · Bogotá, Colombia</p>
+    <h1 class="landing-title">JUAN ESTEBAN <span class="accent">PARRA</span></h1>
+    <p class="landing-sub" data-i18n="land_sub">Desarrollador fullstack construyendo software con lógica sólida y asistencia de IA — a esto le llamo <strong>Vibecoding</strong>.</p>
+
+    <div class="mode-choice">
+      <button class="mode-card" id="btn-reading">
+        <span class="mode-icon">📖</span>
+        <span class="mode-name" data-i18n="mode_reading_title">Modo Lectura</span>
+        <span class="mode-desc" data-i18n="mode_reading_desc">Recorre el portafolio con scroll normal, o arrastra con el mouse para moverte a los lados.</span>
+      </button>
+      <button class="mode-card" id="btn-explore">
+        <span class="mode-icon">🦝</span>
+        <span class="mode-name" data-i18n="mode_explore_title">Modo Exploración</span>
+        <span class="mode-desc" data-i18n="mode_explore_desc">Controla a un mapache pixelado con las flechas del teclado y descubre el contenido caminando.</span>
+      </button>
+    </div>
+    <p class="landing-hint" data-i18n="land_hint">Elige un modo para entrar al portafolio ↑</p>
+  </div>
+</section>
+
+<!-- ================= BACK BUTTON ================= -->
+<button id="back-btn" class="back-btn hidden">
+  <span data-i18n="back_btn">← Volver</span>
+</button>
+
+<!-- ================= READING MODE CONTENT ================= -->
+<main id="content" class="content hidden">
+  <div id="track-container" class="track-container">
+
+    <!-- ---- HERO / SOBRE MI ---- -->
+    <section class="panel panel-hero" id="panel-about">
+      <div class="hero-top">
+        <div class="hero-badges">
+          <span class="badge badge-status">● <span data-i18n="badge_active">Activo</span></span>
+          <span class="badge badge-role" data-i18n="badge_role">Aprendiz ADSO</span>
+          <span class="badge badge-method" data-i18n="badge_method">Vibecoding</span>
         </div>
-    </nav>
-
-    <header class="py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="badge rounded-pill bg-neon-soft">19 Años</span>
-                        <span class="text-neon">Aprendiz ADSO</span>
-                    </div>
-                    
-                    <h1 class="display-4 fw-bold mb-2">Juan Esteban</h1>
-                    <h3 class="h5 text-secondary mb-4">Desarrollador Fullstack & Analista de Software</h3>
-                    
-                    <p class="lead text-secondary mb-4">
-                        Enfocado en la construcción de software mediante <strong>Vibecoding</strong>, integrando el análisis técnico (MER, Diagramas de Clase) con la resolución de errores asistida por IA para crear soluciones escalables.
-                    </p>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <div class="p-3 border-neon-dim rounded-3 bg-glass h-100">
-                                <h6 class="text-neon small uppercase">Frontend & UI</h6>
-                                <p class="extra-small mb-0">Maquetación sólida con <strong>HTML5, CSS3 & Bootstrap</strong>. Creación de interfaces funcionales e interactividad dinámica con JavaScript.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border-neon-dim rounded-3 bg-glass h-100">
-                                <h6 class="text-neon small uppercase">Backend & Análisis</h6>
-                                <p class="extra-small mb-0">Lógica en <strong>Python y PHP</strong>. Elicitación de requisitos, modelos Entidad-Relación y gestión de bases de datos en MySQL/XAMPP.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 border-neon-dim rounded-3 bg-glass h-100">
-                                <h6 class="text-neon small uppercase">IA & Debugging</h6>
-                                <p class="extra-small mb-0">Auditoría de código y corrección de errores mediante IA. Análisis de lógica de servidor y flujos de datos remotos.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-3">
-                        <a href="mailto:juanesspa76@gmail.com" class="btn btn-primary px-4 shadow-neon">Contactar</a>
-                        <a href="https://github.com/StebanCL" class="btn btn-outline-light px-4">GitHub</a>
-                    </div>
-                </div>
-                <div class="col-lg-4 d-none d-lg-block">
-                    <div class="profile-frame mx-auto">
-                        <img src="https://github.com/StebanCL.png" alt="Juan Esteban" class="img-fluid rounded-3 shadow-neon">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>    <section class="py-5 bg-black-depth">
-        <div class="container mb-4">
-            <h3 class="fw-bold">Featured Projects</h3>
-            <p class="text-secondary small">Click on any card to visit the live site.</p>
-        </div>
-
-        <div class="marquee">
-            <div class="marquee-content">
-                <a href="https://stebancl.github.io/Youtube-Chaos-Clone/" target="_blank" class="proyecto-card text-decoration-none">
-                    <div class="card h-100 border-top border-danger border-3">
-                        <div class="card-body">
-                            <h6 class="text-neon">JavaScript Logic</h6>
-                            <h5 class="text-white">YouTube Chaos 🌪️</h5>
-                            <p class="small text-secondary">Manipulación del DOM avanzada.</p>
-                            <div class="btn btn-sm btn-outline-danger mt-2">Visit Site</div>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="https://stebancl.github.io/Color-Psychology-Cheatsheet/" target="_blank" class="proyecto-card text-decoration-none">
-                    <div class="card h-100 border-top border-info border-3">
-                        <div class="card-body">
-                            <h6 class="text-neon">UX/UI Study</h6>
-                            <h5 class="text-white">Psicología del Color 🎨</h5>
-                            <p class="small text-secondary">Teoría del color aplicada.</p>
-                            <div class="btn btn-sm btn-outline-info mt-2">Visit Site</div>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="https://steban-dev.great-site.net/?i=1" target="_blank" class="proyecto-card text-decoration-none">
-                    <div class="card h-100 border-top border-primary border-3">
-                        <div class="card-body">
-                            <h6 class="text-neon">Fullstack & DB</h6>
-                            <h5 class="text-white">Management CRUD 📊</h5>
-                            <p class="small text-secondary">PHP nativo y MySQL.</p>
-                            <div class="btn btn-sm btn-outline-primary mt-2">Visit Site</div>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="https://stebancl.github.io/Google-Clone/" target="_blank" class="proyecto-card text-decoration-none">
-                    <div class="card h-100 border-top border-warning border-3">
-                        <div class="card-body">
-                            <h6 class="text-neon">HTML/CSS</h6>
-                            <h5 class="text-white">Google Clone 🔍</h5>
-                            <p class="small text-secondary">Maquetación Pixel-Perfect.</p>
-                            <div class="btn btn-sm btn-outline-warning mt-2">Visit Site</div>
-                        </div>
-                    </div>
-                </a>
-
-                <div class="proyecto-card">
-                    <div class="card h-100 border-wip">
-                        <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
-                            <div class="spinner-border text-neon mb-2" role="status" style="width: 1.2rem; height: 1.2rem;"></div>
-                            <h6 class="text-neon small mb-1">Vibecoding Next</h6>
-                            <h5 class="text-white">Loading Project 🏗️</h5>
-                            <p class="extra-small text-secondary mb-0">Coming soon</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <hr class="container my-5 border-neon-dim">
-
-        <div class="container py-4">
-            <h4 class="text-neon mb-4 uppercase">Project Deep Dive</h4>
-            <div class="row g-5">
-                <div class="col-md-6 reveal-on-scroll">
-                    <div class="d-flex gap-4 align-items-start p-3 bg-glass rounded-4 border-neon-dim">
-                        <div class="square-placeholder shadow-neon flex-shrink-0">
-                            <span class="img-icon">🌪️</span>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-1">Reto Técnico: YouTube Chaos</h5>
-                            <p class="extra-small text-secondary">
-                                Implementé un <strong>Dispatcher de Animaciones</strong> en JS para coordinar más de 30 efectos complejos (Thanos Snap, Matrix Crash, Black Holes) usando <em>clip-path</em> y funciones de tiempo <em>cubic-bezier</em>, logrando una destrucción fluida del DOM sin perder el rendimiento.
-                            </p>
-                            <div class="loading-bar"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 reveal-on-scroll">
-                    <div class="d-flex gap-4 align-items-start p-3 bg-glass rounded-4 border-neon-dim">
-                        <div class="square-placeholder shadow-neon flex-shrink-0">
-                            <span class="img-icon">📊</span>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-1">Arquitectura: CRUD Management</h5>
-                            <p class="extra-small text-secondary">
-                                Desarrollé un sistema integral aplicando <strong>Programación Orientada a Objetos (POO)</strong> en PHP nativo. El mayor aprendizaje fue la gestión de sesiones seguras y la optimización de consultas MySQL en un entorno XAMPP, priorizando la integridad de los datos.
-                            </p>
-                            <div class="loading-bar blue"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 reveal-on-scroll">
-                    <div class="d-flex gap-4 align-items-start p-3 bg-glass rounded-4 border-neon-dim">
-                        <div class="square-placeholder shadow-neon flex-shrink-0">
-                            <span class="img-icon">🚀</span>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-1">Infraestructura & Datos</h5>
-                            <p class="extra-small text-secondary">
-                                Dominé la <strong>conexión remota PHP-MySQL</strong> y el mapeo de IDs para vincular diseño con funcionalidad. Aprendí a transformar consultas SQL en variables dinámicas para interfaces en <strong>Bootstrap</strong>, superando las limitaciones de hosting gratuitos en el manejo de triggers y procedimientos avanzados.
-                            </p>
-                            <div class="loading-bar blue"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 reveal-on-scroll">
-                    <div class="d-flex gap-4 align-items-start p-3 bg-glass rounded-4 border-neon-dim">
-                        <div class="square-placeholder shadow-neon flex-shrink-0">
-                            <span class="img-icon">📐</span>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-1">Análisis & Requisitos (ADSO)</h5>
-                            <p class="extra-small text-secondary">
-                                Especialista en la fase de análisis: elicitación de requisitos (funcionales y no funcionales), modelado <strong>Entidad-Relación (MER)</strong> y diagramación de clases para asegurar la escalabilidad del software desde su concepción.
-                            </p>
-                            <div class="loading-bar"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
+      <span class="panel-tag" data-i18n="tag_about">Sobre mí</span>
+      <h2 data-i18n="about_title">Análisis + código + IA</h2>
+      <p class="panel-text" data-i18n="about_text">Soy Aprendiz SENA del Tecnólogo en Análisis y Desarrollo de Software (ADSO). Trabajo con HTML5, CSS3, JavaScript, Python y Django, y complemento cada proyecto con levantamiento de requerimientos, modelado UML/MER y documentación técnica. Mi sello es el <strong>Vibecoding</strong>: usar herramientas de IA para depurar más rápido, explorar arquitecturas y mantener la calidad del código sin perder de vista el negocio detrás del software.</p>
+      <div class="stat-row">
+        <div class="stat"><strong>B2</strong><span data-i18n="stat_english">Inglés técnico</span></div>
+        <div class="stat"><strong>SENA</strong><span data-i18n="stat_formacion">Formación ADSO</span></div>
+        <div class="stat"><strong>IA</strong><span data-i18n="stat_ia">Vibecoding diario</span></div>
+      </div>
     </section>
 
-    <section class="py-5 bg-black-depth">
-        <div class="container mb-5">
-            <h3 class="fw-bold">Proyectos Destacados</h3>
-            <p class="text-secondary small">Explora mis desarrollos recientes y la lógica aplicada en cada uno.</p>
+    <!-- ---- HABILIDADES ---- -->
+    <section class="panel" id="panel-skills">
+      <span class="panel-tag" data-i18n="tag_skills">Habilidades</span>
+      <h2 data-i18n="skills_title">Caja de herramientas</h2>
+      <div class="skill-grid">
+        <div class="skill-card">
+          <div class="skill-icons">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bootstrap/bootstrap-original.svg" alt="Bootstrap">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript">
+          </div>
+          <h4>Frontend</h4>
+          <p>HTML5 · CSS3 · Bootstrap 5 · JS</p>
         </div>
-
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-12 reveal-on-scroll">
-                    <div class="project-rect d-flex flex-column flex-md-row bg-glass border-neon-dim overflow-hidden rounded-4">
-                        <div class="project-img-container">
-                            <img src="./assets/img/CRUD.PNG"" onerror="this.src='https://raw.githubusercontent.com/StebanCL/StebanCL/main/assets/crud_preview.png'" alt="CRUD Preview" class="project-img">
-                        </div>
-                        <div class="project-text p-4 d-flex flex-column justify-content-center">
-                            <h6 class="text-neon mb-1 small uppercase">Fullstack & MySQL</h6>
-                            <h4 class="fw-bold">Management CRUD (Great-Site)</h4>
-                            <p class="text-secondary extra-small">Sistema de gestión desarrollado con PHP nativo. Implementa lógica de IDs para objetos y conversión de consultas SQL a interfaces HTML dinámicas.</p>
-                            <a href="https://steban-dev.great-site.net/?i=1" target="_blank" class="btn btn-sm btn-outline-primary align-self-start mt-2">Explorar Proyecto</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 reveal-on-scroll" style="animation-delay: 0.2s;">
-                    <div class="project-rect d-flex flex-column flex-md-row-reverse bg-glass border-neon-dim overflow-hidden rounded-4">
-                        <div class="project-img-container">
-                            <img src="./assets/img/YT_CHAOS.PNG" alt="YouTube Chaos" class="project-img">
-                        </div>
-                        <div class="project-text p-4 d-flex flex-column justify-content-center">
-                            <h6 class="text-neon mb-1 small uppercase">JavaScript Logic</h6>
-                            <h4 class="fw-bold">YouTube Chaos Clone</h4>
-                            <p class="text-secondary extra-small">Un experimento de lógica pura donde se manipula el DOM y se aplican principios de Vibecoding para la corrección creativa de errores.</p>
-                            <a href="https://stebancl.github.io/Youtube-Chaos-Clone/" target="_blank" class="btn btn-sm btn-outline-danger align-self-start mt-2">Ver Caos</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 reveal-on-scroll" style="animation-delay: 0.4s;">
-                    <div class="project-rect d-flex flex-column flex-md-row bg-glass border-neon-dim overflow-hidden rounded-4">
-                        <div class="project-img-container">
-                            <img src="./assets/img/C_PSYCHOLOGY.PNG" alt="Color Theory" class="project-img">
-                        </div>
-                        <div class="project-text p-4 d-flex flex-column justify-content-center">
-                            <h6 class="text-neon mb-1 small uppercase">UX/UI & CSS</h6>
-                            <h4 class="fw-bold">Cheatsheet de Psicología del Color</h4>
-                            <p class="text-secondary extra-small">Guía interactiva diseñada con Bootstrap y CSS avanzado, optimizando la visualización de datos técnicos sobre color.</p>
-                            <a href="https://stebancl.github.io/Color-Psychology-Cheatsheet/" target="_blank" class="btn btn-sm btn-outline-info align-self-start mt-2">Aprender Colores</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 reveal-on-scroll" style="animation-delay: 0.6s;">
-                    <div class="project-rect d-flex flex-column flex-md-row-reverse bg-glass border-neon-dim overflow-hidden rounded-4">
-                        <div class="project-img-container">
-                            <img src="./assets/img/G_CLONE.PNG" alt="Google Clone" class="project-img">
-                        </div>
-                        <div class="project-text p-4 d-flex flex-column justify-content-center">
-                            <h6 class="text-neon mb-1 small uppercase">HTML5 / CSS3 Grid</h6>
-                            <h4 class="fw-bold">Google Pixel-Perfect Clone</h4>
-                            <p class="text-secondary extra-small">Desarrollo enfocado en precisión visual y arquitectura de componentes interactivos con Vanilla JS.</p>
-                            <a href="https://stebancl.github.io/Google-Clone/" target="_blank" class="btn btn-sm btn-outline-warning align-self-start mt-2">Ver Precisión</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12" style="margin-top: 2rem;">
-                    <div class="project-rect d-flex flex-column flex-md-row bg-glass border-neon-dim overflow-hidden rounded-4">
-                        <div class="project-img-container bg-dark d-flex align-items-center justify-content-center" style="width: 100%; max-width: 450px;">
-                            <div class="text-secondary display-1">🏗️</div>
-                        </div>
-                        <div class="project-text p-4 d-flex flex-column justify-content-center">
-                            <h6 class="text-neon mb-1 small uppercase">Próximamente</h6>
-                            <h4 class="fw-bold text-white">Fullstack MVC Project...</h4>
-                            <p class="text-secondary extra-small">
-                                Nuevo desarrollo basado en arquitectura <strong>MVC</strong>. Aplicando elicitación de requisitos y modelos de datos avanzados para una integración completa Backend-Frontend.
-                            </p>
-                            <div class="btn btn-sm btn-outline-secondary disabled align-self-start mt-2">En desarrollo</div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+        <div class="skill-card">
+          <div class="skill-icons">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" alt="PHP">
+          </div>
+          <h4>Backend</h4>
+          <p>Python · Django 4.2 · PHP</p>
         </div>
+        <div class="skill-card">
+          <div class="skill-icons">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL">
+          </div>
+          <h4>Datos</h4>
+          <p>MySQL/MariaDB · SQL · Modelado ER</p>
+        </div>
+        <div class="skill-card">
+          <h4>Análisis</h4>
+          <p>UML · Casos de uso · Requerimientos</p>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icons">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" alt="VS Code">
+          </div>
+          <h4>Herramientas</h4>
+          <p>Git · GitHub · VS Code</p>
+        </div>
+        <div class="skill-card">
+          <h4 data-i18n="skill_ia_title">IA aplicada</h4>
+          <p data-i18n="skill_ia_desc">Debugging asistido, MediaPipe / visión por computador</p>
+        </div>
+      </div>
     </section>
 
-    <footer class="py-5 border-top">
-        <div class="container text-center text-secondary">
-            <p class="small mb-0">Professional Portfolio | <strong>Juan Esteban Parra Rodriguez</strong> | 2026</p>
-            <p class="extra-small mt-1">Inglés Técnico B2-C1 | Analista ADSO | Vibecoding Expert</p>
-        </div>
-    </footer>
+    <!-- ---- PROYECTOS (tarjetas expandibles) ---- -->
+    <section class="panel panel-wide" id="panel-projects">
+      <span class="panel-tag" data-i18n="tag_projects">Proyectos</span>
+      <h2 data-i18n="projects_title">Lo que he construido</h2>
+      <p class="panel-text" data-i18n="projects_sub">Haz clic en una tarjeta para expandirla y ver el detalle técnico.</p>
 
-    <script src="script.js"></script>
+      <div class="project-grid" id="project-grid">
+
+        <article class="proj-card" data-project="barberia">
+          <div class="proj-visual proj-visual-a"><img src="assets/img/proj-barberia.jpg" alt="" onerror="this.style.display='none'"><span>💈</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">Django 4.2 · MariaDB · MediaPipe · JavaScript/AJAX</p>
+                <h3>Barbería M&amp;A · Sistema de Agendamiento</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_barberia_p1">Proyecto grupal SENA: sistema completo de agendamiento de citas para una barbería. Diseñé modelos como <code>ConfiguracionHorario</code> (singleton de horario del negocio), <code>DiaHabilitado</code> y <code>BarberoDiaHabilitado</code> para que cada barbero administre su disponibilidad de forma independiente.</p>
+              <p data-i18n="proj_barberia_p2">El flujo de reserva usa AJAX con validaciones en capas (frontend y backend) para evitar choques de horario y dobles envíos. Integramos además un módulo de <strong>análisis de forma de rostro</strong> con MediaPipe Face Mesh, calibrado con proporciones faciales confiables (largo/pómulo, mandíbula/pómulo) en vez de depender de puntos de la frente, que fallaban por oclusión del cabello.</p>
+              <ul class="proj-list">
+                <li data-i18n="proj_barberia_l1">Panel de administración de horarios por barbero y por día</li>
+                <li data-i18n="proj_barberia_l2">Reservas AJAX con validación de disponibilidad en tiempo real</li>
+                <li data-i18n="proj_barberia_l3">Recomendación de corte según forma de rostro (visión por computador)</li>
+                <li data-i18n="proj_barberia_l4">Migración de entorno: Python 3.11, Django 4.2 para compatibilidad con MariaDB 10.4</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="crud">
+          <div class="proj-visual proj-visual-b"><img src="assets/img/proj-crud.jpg" alt="" onerror="this.style.display='none'"><span>📊</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">PHP nativo · MySQL · POO · XAMPP</p>
+                <h3>Management CRUD</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_crud_p1">Sistema de gestión desarrollado en PHP nativo aplicando Programación Orientada a Objetos. Trabajé el mapeo de IDs entre entidades, sesiones seguras y la conversión de consultas SQL en interfaces dinámicas con Bootstrap.</p>
+              <a href="https://steban-dev.great-site.net/?i=1" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="youtube">
+          <div class="proj-visual proj-visual-c"><img src="assets/img/proj-youtube.jpg" alt="" onerror="this.style.display='none'"><span>🌪️</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">JavaScript · Manipulación del DOM</p>
+                <h3>YouTube Chaos Clone</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_yt_p1">Reto de lógica pura: un dispatcher de animaciones en JavaScript que coordina más de 30 efectos (clip-path, cubic-bezier) para "destruir" la interfaz de YouTube de forma controlada, sin perder rendimiento.</p>
+              <a href="https://stebancl.github.io/Youtube-Chaos-Clone/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="color">
+          <div class="proj-visual proj-visual-d"><img src="assets/img/proj-color.jpg" alt="" onerror="this.style.display='none'"><span>🎨</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">CSS3 · Bootstrap · UX/UI</p>
+                <h3 data-i18n="proj_color_title">Cheatsheet de Psicología del Color</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_color_p1">Guía interactiva sobre teoría del color aplicada a interfaces, construida para practicar composición visual y jerarquía tipográfica con Bootstrap.</p>
+              <a href="https://stebancl.github.io/Color-Psychology-Cheatsheet/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="google">
+          <div class="proj-visual proj-visual-e"><img src="assets/img/proj-google.jpg" alt="" onerror="this.style.display='none'"><span>🔍</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">HTML5 · CSS3 Grid · JavaScript</p>
+                <h3>Google Pixel-Perfect Clone</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_google_p1">Maquetación pixel a pixel del buscador de Google, enfocada en precisión visual, grid y componentes interactivos con JavaScript nativo.</p>
+              <a href="https://stebancl.github.io/Google-Clone/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="clones">
+          <div class="proj-visual proj-visual-f"><img src="assets/img/proj-clones.jpg" alt="" onerror="this.style.display='none'"><span>🧩</span></div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">HTML5 · CSS3 · Bootstrap</p>
+                <h3 data-i18n="proj_clones_title">Clones visuales (Facebook / Laika)</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_clones_p1">Serie de réplicas de interfaz para practicar maquetación real: la estructura de feed de Facebook y el landing de Laika, enfocadas en fidelidad visual, responsive design y buenas prácticas de Bootstrap.</p>
+              <a href="https://stebancl.github.io/LaikaClone/" target="_blank" class="proj-link" data-i18n="btn_visit_laika">Ver clon de Laika ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="astrotracker">
+          <div class="proj-visual proj-visual-g">
+            <img src="assets/img/proj-astrotracker.jpg" alt="" onerror="this.style.display='none'">
+            <span>🛰️</span>
+          </div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">Python · Flask · Skyfield · Canvas · CORS</p>
+                <h3 data-i18n="proj_astro_title">Astro-Tracker · Radar Heliocéntrico</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_astro_p1">Aplicación full-stack tipo "Command Center" que visualiza la posición real de los planetas del sistema solar usando Skyfield y efemérides de la NASA (<code>de421.bsp</code>), servidas por una API en Flask y dibujadas en tiempo real sobre un Canvas.</p>
+              <p data-i18n="proj_astro_p2">Incluye un sistema Tierra-Luna con órbita visual real, un monitor que predice el próximo eclipse analizando la alineación de nodos lunares y solares con historial anual, y un reloj mundial con indicador día/noche según la zona horaria elegida.</p>
+              <ul class="proj-list">
+                <li data-i18n="proj_astro_l1">Radar heliocéntrico con cálculo dinámico del centro según el tamaño del canvas</li>
+                <li data-i18n="proj_astro_l2">Predicción y ​historial de eclipses solares y lunares del año en curso</li>
+                <li data-i18n="proj_astro_l3">Reloj mundial con actualización asíncrona cada 2 segundos</li>
+                <li data-i18n="proj_astro_l4">Interfaz "glassmorphism" con <code>backdrop-filter</code> y gradientes radiales</li>
+              </ul>
+              <a href="https://github.com/StebanCL/Astro-Tracker" target="_blank" class="proj-link" data-i18n="btn_visit_repo">Ver repositorio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="modals">
+          <div class="proj-visual proj-visual-h">
+            <img src="assets/img/proj-modals.jpg" alt="" onerror="this.style.display='none'">
+            <span>🪟</span>
+          </div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">Bootstrap 5 · JavaScript · Clases CSS</p>
+                <h3 data-i18n="proj_modals_title">Modals Class Example</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_modals_p1">Proyecto de práctica enfocado en dominar el sistema de modales de Bootstrap: distintos disparadores, tamaños y comportamientos, organizados con clases reutilizables para entender bien su ciclo de vida en el DOM.</p>
+              <a href="https://stebancl.github.io/Modals-Class-Example/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="feline">
+          <div class="proj-visual proj-visual-i">
+            <img src="assets/img/proj-feline.jpg" alt="" onerror="this.style.display='none'">
+            <span>🐾</span>
+          </div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">HTML5 · CSS3 · Soft UI · Google Fonts</p>
+                <h3 data-i18n="proj_feline_title">Feline Society · AstroShop Admin Panel</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_feline_p1">Panel administrativo para AstroShop (tienda de equipos de astronomía) con una identidad visual "Soft UI" inspirada en gatos: bordes redondeados, paleta pastel y tipografías cálidas (Chelsea Market / Dancing Script).</p>
+              <p data-i18n="proj_feline_p2">Estructurado en módulos independientes (usuarios, inventario y sistema) dentro de un panel <code>ADMIN</code>, separando estilos globales de estilos de formularios para mantener el proyecto organizado y escalable.</p>
+              <a href="https://stebancl.github.io/Feline-Society-ADSO/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="proj-card" data-project="magna">
+          <div class="proj-visual proj-visual-j">
+            <img src="assets/img/proj-magna.jpg" alt="" onerror="this.style.display='none'">
+            <span>🏢</span>
+          </div>
+          <div class="proj-main">
+            <div class="proj-head">
+              <div>
+                <p class="proj-stack">Sitio corporativo · Generación de leads</p>
+                <h3 data-i18n="proj_magna_title">Magna Solutions S.A.S · Portafolio Corporativo</h3>
+              </div>
+              <span class="proj-toggle">＋</span>
+            </div>
+            <div class="proj-body">
+              <p data-i18n="proj_magna_p1">Sitio web oficial para una microempresa en formación, diseñado para exponer sus servicios integrales (Contabilidad, SST, Bienestar y Eventos) con una interfaz profesional enfocada en generar contactos y solicitudes de cotización.</p>
+              <a href="https://magnasoluciones.com/" target="_blank" class="proj-link" data-i18n="btn_visit">Visitar sitio ↗</a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ---- ENFOQUE A FUTURO ---- -->
+    <section class="panel" id="panel-future">
+      <span class="panel-tag" data-i18n="tag_future">Enfoque a futuro</span>
+      <h2 data-i18n="future_title">IA como acelerador, no como atajo</h2>
+      <p class="panel-text" data-i18n="future_text">Quiero seguir construyendo software combinando fundamentos sólidos de análisis con herramientas de IA que aceleren la depuración, la investigación de arquitecturas y la adaptación a nuevas tecnologías. Mi meta en la etapa práctica es aplicar este enfoque en proyectos reales, midiendo impacto en calidad y velocidad de entrega.</p>
+    </section>
+
+    <!-- ---- CONTACTO ---- -->
+    <section class="panel" id="panel-contact">
+      <span class="panel-tag" data-i18n="tag_contact">Contacto</span>
+      <h2 data-i18n="contact_title">Hablemos</h2>
+      <div class="contact-grid">
+        <a href="mailto:juanesspa76@gmail.com" class="contact-pill">✉️ juanesspa76@gmail.com</a>
+        <a href="https://github.com/StebanCL" target="_blank" class="contact-pill">🐙 GitHub</a>
+        <a href="http://www.linkedin.com/in/juan-esteban-parra-rodriguez-99956a3ab" target="_blank" class="contact-pill">💼 LinkedIn</a>
+        <span class="contact-pill">📍 Bogotá, Colombia</span>
+      </div>
+      <p class="footer-note" data-i18n="footer_note">Portafolio profesional · Juan Esteban Parra Rodríguez · 2026</p>
+    </section>
+
+  </div>
+</main>
+
+<!-- ================= EXPLORATION MODE (raccoon) ================= -->
+<div id="explore" class="explore hidden">
+  <div class="explore-hud">
+    <span data-i18n="explore_hint">Usa las flechas ↑ ↓ ← → para mover al mapache</span>
+  </div>
+  <div id="world" class="world">
+
+    <div class="world-deco deco-1"></div>
+    <div class="world-deco deco-2"></div>
+    <div class="world-deco deco-3"></div>
+    <div class="world-deco deco-4"></div>
+
+    <!-- props pixel-art decorativos (árbol, roca, seta, poste) -->
+    <div class="pixel-prop prop-tree" style="left:150px; top:120px;"></div>
+    <div class="pixel-prop prop-tree" style="left:1520px; top:900px;"></div>
+    <div class="pixel-prop prop-tree" style="left:2200px; top:120px;"></div>
+    <div class="pixel-prop prop-tree" style="left:2140px; top:1260px;"></div>
+    <div class="pixel-prop prop-rock" style="left:1580px; top:110px;"></div>
+    <div class="pixel-prop prop-rock" style="left:140px; top:860px;"></div>
+    <div class="pixel-prop prop-rock" style="left:2400px; top:860px;"></div>
+    <div class="pixel-prop prop-mush" style="left:270px; top:520px;"></div>
+    <div class="pixel-prop prop-mush" style="left:1440px; top:520px;"></div>
+    <div class="pixel-prop prop-mush" style="left:1820px; top:640px;"></div>
+    <div class="pixel-prop prop-mush" style="left:1080px; top:1320px;"></div>
+    <div class="pixel-prop prop-sign" style="left:880px; top:940px;"></div>
+    <div class="pixel-prop prop-sign" style="left:2460px; top:420px;"></div>
+
+    <svg id="tree-lines" viewBox="0 0 2600 1500" preserveAspectRatio="none">
+      <line x1="1300" y1="750" x2="420" y2="260"></line>
+      <line x1="1300" y1="750" x2="1800" y2="220"></line>
+      <line x1="1300" y1="750" x2="2200" y2="520"></line>
+      <line x1="1300" y1="750" x2="2200" y2="220"></line>
+      <line x1="1300" y1="750" x2="1860" y2="1180"></line>
+      <line x1="1300" y1="750" x2="500" y2="1080"></line>
+      <line x1="1300" y1="750" x2="720" y2="560"></line>
+      <line x1="1300" y1="750" x2="980" y2="220"></line>
+      <line x1="1300" y1="750" x2="2080" y2="760"></line>
+      <line x1="1300" y1="750" x2="1340" y2="140"></line>
+      <line x1="1300" y1="750" x2="980" y2="1240"></line>
+      <line x1="1300" y1="750" x2="1460" y2="1240"></line>
+      <line x1="1300" y1="750" x2="2200" y2="1040"></line>
+      <line x1="1300" y1="750" x2="420" y2="760"></line>
+    </svg>
+
+    <div class="tree-root" style="left:1300px; top:750px;">
+      <span data-i18n="tree_root">Desarrollo<br>de Software</span>
+    </div>
+
+    <div class="world-zone" data-zone="about" data-bubbles="HTML5,CSS3,Python,Django" style="--x: 420px; --y: 260px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3 data-i18n="tag_about">Sobre mí</h3>
+      <p data-i18n="about_text_short">Aprendiz ADSO enfocado en desarrollo web con Python, Django y JavaScript, apoyado en IA (Vibecoding).</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="about_text">Soy Aprendiz SENA del Tecnólogo en Análisis y Desarrollo de Software (ADSO)...</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="skills" data-bubbles="UML,Git,SQL,MVT" style="--x: 1800px; --y: 220px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3 data-i18n="tag_skills">Habilidades</h3>
+      <p>Django · Python · JS · SQL · UML · Git</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="skills_title">Caja de herramientas completa: frontend, backend, datos y análisis.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="barberia" data-bubbles="Django,MediaPipe,AJAX,MariaDB" style="--x: 2200px; --y: 520px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>💈 Barbería M&amp;A</h3>
+      <p data-i18n="proj_barberia_short">Agendamiento con Django + MediaPipe para análisis facial.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="proj_barberia_p1">Sistema completo de agendamiento con modelos de disponibilidad por barbero...</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="crud" data-bubbles="PHP,MySQL,POO,XAMPP" style="--x: 2200px; --y: 220px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>📊 Management CRUD</h3>
+      <p data-i18n="proj_crud_short">PHP + MySQL, POO y sesiones seguras.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="proj_crud_p1">Sistema de gestión desarrollado en PHP nativo aplicando POO...</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="youtube" data-bubbles="JavaScript,DOM,CSS,Animación" style="--x: 1860px; --y: 1180px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🌪️ YouTube Chaos</h3>
+      <p data-i18n="proj_yt_short">Animaciones JS a gran escala.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="proj_yt_p1">Dispatcher de animaciones que coordina más de 30 efectos...</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="future" data-bubbles="IA,Vibecoding,Escalabilidad" style="--x: 500px; --y: 1160px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3 data-i18n="tag_future">Enfoque a futuro</h3>
+      <p data-i18n="future_text_short">IA como acelerador del desarrollo de software.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail" data-i18n="future_text">IA como acelerador, no como atajo...</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="contact" data-bubbles="Email,GitHub,LinkedIn" style="--x: 1340px; --y: 140px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3 data-i18n="tag_contact">Contacto</h3>
+      <p>juanesspa76@gmail.com</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">juanesspa76@gmail.com · github.com/StebanCL</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="color" data-bubbles="UX,Color,UI,Teoría" style="--x: 420px; --y: 840px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🎨 Color Psychology</h3>
+      <p>Guía visual de color y psicología aplicada.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Cheatsheet interactiva de psicología del color enfocada en composición visual y jerarquía tipográfica.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="google" data-bubbles="HTML,Grid,UI,Clone" style="--x: 980px; --y: 220px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🔍 Google Clone</h3>
+      <p>Maquetación pixel-perfect del buscador.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Clon de Google con enfoque en precisión visual, grid y componentes interactivos.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="clones" data-bubbles="Bootstrap,Maquetación,Responsive,UI" style="--x: 2080px; --y: 760px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🧩 Clones visuales</h3>
+      <p>Réplicas de interfaces de Facebook y Laika.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Práctica de maquetación real, fidelidad visual y responsive design con Bootstrap.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="astrotracker" data-bubbles="Python,Flask,Skyfield,Canvas" style="--x: 2200px; --y: 1040px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🛰️ Astro-Tracker</h3>
+      <p>Radar heliocéntrico y predicción de eclipses.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Aplicación full-stack con Skyfield, Canvas y visualización dinámica del sistema solar.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="modals" data-bubbles="Bootstrap,Modals,JavaScript,DOM" style="--x: 980px; --y: 1240px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🪟 Modals Class</h3>
+      <p>Exploración del sistema de modales de Bootstrap.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Proyecto de práctica para dominar disparadores, tamaños y comportamiento de los modales.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="feline" data-bubbles="SoftUI,Admin,Panel,UX" style="--x: 1460px; --y: 1240px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🐾 Feline Society</h3>
+      <p>Panel administrativo con estética Soft UI.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Panel administrativo modular con diseño visual cálido y componentes organizados.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div class="world-zone" data-zone="magna" data-bubbles="Corporate,Leads,UI,Brand" style="--x: 520px; --y: 560px;">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <h3>🏢 Magna Solutions</h3>
+      <p>Portafolio corporativo y generación de leads.</p>
+      <span class="zone-hint" data-i18n="zone_hint">Toca para ver más ✦</span>
+      <div class="zone-detail">Sitio corporativo diseñado para mostrar servicios y captar solicitudes de cotización.</div>
+      <div class="zone-bubbles"></div>
+    </div>
+
+    <div id="bubble-layer" class="bubble-layer"></div>
+
+    <div id="raccoon" class="raccoon"></div>
+  </div>
+
+  <!-- ===== MOBILE CONTROLS: joystick + interact button ===== -->
+  <div id="mobile-controls" class="mobile-controls">
+    <div id="joystick-base" class="joystick-base">
+      <div id="joystick-knob" class="joystick-knob"></div>
+    </div>
+    <button id="interact-btn" class="interact-btn hidden" data-i18n="interact_btn">Ver ✦</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
